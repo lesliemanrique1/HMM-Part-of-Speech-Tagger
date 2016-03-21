@@ -1,0 +1,26 @@
+#Leslie Manrique
+#Homework_4
+#Name:  Table
+#       Probabilities for each POS tags(assuming bigrams) using
+#       training corpus (WSJ_02-21.pos)
+#OutputFile: Table.txt
+
+
+#Part_1
+#Table of Probabilities
+#Output table in Table.txt
+
+
+
+def makeTable():
+
+
+def main():
+    training = WSJ_02-21.pos
+    tf = open(training,'r')
+    tf.readline()
+    
+    
+
+
+

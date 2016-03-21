@@ -1,0 +1,81 @@
+#Library to implement Viterbi Algorithm
+
+# Likelihood Table
+# P(Word|POS)
+
+
+
+#reads from training file 
+#returns a an array of sentence arrays made of tuples (Word,POS)
+
+def corpus_list(filename):
+    
+    tf = open(filename , 'r')
+
+    sent_cond = True 
+    sentence = []
+    array = []
+    count = 0
+    for line in tf:
+        l = line.split()
+        if(len(l) != 2):
+            continue
+        else:
+            
+            if sent_cond == False:
+                array.append(sentence)
+                sentence = []
+                sent_cond = True
+            
+            tags = (l[0],l[1]) 
+            if l[0] == '.': 
+                sent_cond = False
+        
+        sentence.append(tags)
+        count=count+1  
+
+    tf.close()
+    
+    return array 
+
+#How many different parts of speeches do we have?
+
+#Structure of the prior probabilities table
+#@return array with structure for prior probabilities table 
+
+def corpus_dictionary(filename):
+    training = filename
+    tf = open(training, 'r')
+    dic = {}
+    for line in tf:
+        l = line.split()
+        #print(line) 
+        #POS is made up of letters; check to see if it's a letter
+        if(len(l) == 2):
+            if l[1].isalpha():
+                #add line to list
+                #POS.append(l[1])
+                #Tokens.append(l[0])
+                #check if key is exiting 
+                if l[1] in dic:
+                    #append the new tag to existing array if it's not already in the array 
+                    #dic[l[1]].append(l[0])
+                    word = l[0].lower() 
+                    if not word in dic[l[1]]:
+                        dic[l[1]].append(word) 
+                else:
+                    #create a new key and array
+                    dic[l[1]] = [l[0].lower()]
+    tf.close()
+    
+    return dic  
+#transition table helper function 
+
+#transition table
+#takes in an array of snetence arrays with tuples
+#returns transition table
+
+def corpus_pos_list(dic):
+	pos_list = list(dic.keys()) 
+	return pos_list 
+
