@@ -1,7 +1,0 @@
-import viterbi
-
-#uses viterbi algortihm
-
-training = "WSJ_POS_CORPUS_FOR_STUDENTS/WSJ_02-21.pos"
-
-print(viterbi.train(training))
