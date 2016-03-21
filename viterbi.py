@@ -89,9 +89,9 @@ def corpus_dictionary(filename):
 #returns a list of dictionary key
 #@param	dictionary	dictionary
 #@return pos_list	list of dictionary keys
-def corpus_pos_list(dic):
-	pos_list = list(dic.keys()) 
-	return pos_list 
+def key_list(dic):
+	list_  = list(dic.keys()) 
+	return list_
 
 
 #prints matrix and row and column headers to a csv file titles 'prior_probabilities.csv'
@@ -99,8 +99,8 @@ def corpus_pos_list(dic):
 #                       transition occurs in corpus
 #@param list_1		column headers
 #@param list_2		row headers
-def print_transition(matrix,list_1,list_2):
-	f = open('prior_probabilities.csv','wb')
+def print_transition(filename,matrix,list_1,list_2):
+	f = open(filename,'wb')
 	with f as out:
 		writer = csv.writer(out) 
 		writer.writerow(['']+list_1)
@@ -147,7 +147,7 @@ def calculate_prior_probabilities(corpus_list,matrix,dic,list_2):
 #@param corpus_list	list of sentences with words as tuples 
 #@return table		returns prior probabilities transition table 
 def transition_table(dic,corpus_list):
-	ls = corpus_pos_list(dic) 
+	ls = key_list(dic) 
 
 	list_1 =  ls 
 	list_2 = ['S'] + ls 
@@ -161,6 +161,67 @@ def transition_table(dic,corpus_list):
 	#calculate prior probabilities 
 	calculate_prior_probabilities(corpus_list,table,dic,list_2) 
 	#prints prior probabilities table to csv file 
-	print_transition(table,list_1,list_2)  
+	print_transition('prior_probabilities.csv',table,list_1,list_2)  
 	return table
 
+
+
+
+#----------------------likelihood table----------------------------------#
+
+#creates a dictionary of the different words in the corpus 
+#@param corpus_list	list of words and part of speeches 
+#@param keys		column header 
+#@return dic		dictionary 
+def word_dic(corpus_list, keys):
+	dic = {} 
+	#print(keys)
+	for i in corpus_list:
+		for j in i:
+			word = j[0].lower() 
+			pos = j[1]
+			#create dictionary 
+			if word in dic:
+				index = keys.index(pos) 
+				dic[word][index] += 1  
+			else:
+				#create dictionary element first
+				dic[word] = [0]*len(keys) 
+				index = keys.index(pos)
+				dic[word][index] +=1 
+				
+	#print(dic)
+	return dic 
+
+ 
+
+#calculates word frequencies and outputs table into csv file named likelihood.csv 
+#@param pos_dic		dictionary of part of speech and their occurences
+#@param word_dic	dictionary of words and their occurences of each port of speech 
+#@return table		the likelihood matrix
+def word_freq(pos_dic,word_dic):
+	#get list of keys in word_dic 
+	word_keys = key_list(word_dic) 
+	pos_keys = key_list(pos_dic) 
+	table = numpy.zeros(shape = (len(word_keys),len(pos_keys)))  
+	count = 0 
+	for key in word_dic:
+		for i in range(len(word_dic[key])):	
+			#print(word_dic[key][i]) 
+			pos_occurences = pos_dic[pos_keys[i]] 
+			#print(pos_occurences) 
+			#pos_occurences = pos_dic[i]
+			#print(pos_occurences)
+			#print(word_dic[key][i]) 
+			table[count,i] = float(word_dic[key][i])/float(pos_occurences) 
+			
+			"""if key == 'misanthrope':
+				print("key",key) 
+				print("original",float(word_dic[key][i])) 
+				print("pos_occurences",float(pos_occurences)) 
+				print("division",float(table[count,i])) 
+			"""
+		count+=1 
+	print_transition('likelihood.csv',table,pos_keys,word_keys)
+
+	return table 
