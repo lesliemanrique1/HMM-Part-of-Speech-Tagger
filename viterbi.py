@@ -1,7 +1,9 @@
 import numpy 
 import csv
 
-
+#NOTE:
+#
+#		Find a new way to form corpus list 
 #reads from training file 
 #returns a an array of sentence arrays made of tuples (Word,POS)
 #@param filename 	name of file to read
@@ -16,24 +18,14 @@ def corpus_list(filename):
     count = 0
     for line in tf:
         l = line.split()
-        if(len(l) != 2):
-            continue
-        else:
-            
-            if sent_cond == False:
-                array.append(sentence)
-                sentence = []
-                sent_cond = True
-            
-            tags = (l[0],l[1]) 
-            if l[0] == '.': 
-                sent_cond = False
-        
-        sentence.append(tags)
-        count=count+1  
-
+	if (len(l) == 0):
+		array.append(sentence) 
+		sentence = [] 
+	else:
+		tags = (l[0],l[1]) 
+		sentence.append(tags)
+  
     tf.close()
-    
     return array 
 
 
@@ -116,13 +108,23 @@ def print_transition(filename,matrix,list_1,list_2):
 #@param list_1		column header 
 #@param list_2		row header 
 def helper_transition(sentence,matrix,list_1,list_2):
-	row = 0 
-	for i in sentence:
-		past = list_2[row] 
-		current = i[1]
-		column = list_1.index(current) 
-		matrix[row][column] +=1 
+	#list_1 is columns
+	#list_2 is rows
+	period_r = list_2.index('.')
+	period_c = list_1.index('.')
+	#row = 0 
+	#print sentence
+	#print(sentence) 
+	#print("SENTENCE IS ABOVEEEEE!!!")
+	this_sentence = [('','S')] + sentence 
+	#print this_sentence
+	#for i in sentence:
+	for i in range(len(this_sentence)-1):
+		current = this_sentence[i][1]
 		row = list_2.index(current) 
+		following = this_sentence[i+1][1]
+		column = list_1.index(following) 
+		matrix[row][column]+=1 
 
 #calculates the prior probabilities 
 #@param corpus_list	list of sentences in corpus with words as tuples 
@@ -142,15 +144,14 @@ def calculate_prior_probabilities(corpus_list,matrix,dic,list_2):
 			for j in range(len(matrix[i])):
 				matrix[i,j] = matrix[i,j]/dividend 	
 
-#creates the transition table 
-#@param dic		dictionary the includes pos:# of times appeared 
+#creates the transition table  
 #@param corpus_list	list of sentences with words as tuples 
 #@return table		returns prior probabilities transition table 
 def transition_table(dic,corpus_list):
 	ls = key_list(dic) 
 
-	list_1 =  ls 
-	list_2 = ['S'] + ls 
+	list_1 =  ls #columns 
+	list_2 = ['S'] + ls #rows
 	#creates a matrix with indexes initialized to 0 using numpy 
 	table = numpy.zeros(shape = (len(list_2),len(list_1)))
 	#add values to table sentence by sentence
@@ -224,4 +225,148 @@ def word_freq(pos_dic,word_dic):
 		count+=1 
 	print_transition('likelihood.csv',table,pos_keys,word_keys)
 
-	return table 
+	return table
+
+
+#-----------------Viterbi Algorithm------------
+#Creates an Array of sentences 
+def corpus_list_2(filename): 
+	tf = open(filename,'r') 
+	#sent_cond = True 
+	sentence = [] 
+	array = []
+	for line in tf:
+		l = line.split()
+		if(len(l) == 0):
+			array.append(sentence) 
+			sentence = []
+		else:
+			tags = (l[0]) 
+			sentence.append(tags) 
+
+		
+		
+	tf.close()
+
+	return array
+
+#return OOV list of possabilities 
+def OOV_tag(word,index,pos_keys):
+	OOV_pos = [] 
+
+	#if there's a hyphen , return JJ
+	if '-' in word:
+		if 'JJ' not in OOV_pos: 
+			OOV_pos.append('JJ')
+
+	#if word ends with able, return JJ 
+	if 'able' in word:
+		if 'JJ' not in OOV_pos: 
+			OOV_pos.append('JJ') 
+		
+
+	#if word is numnerical, return CD 
+	if unicode(word).isnumeric():
+		if 'CD' not in OOV_pos: 
+			OOV_pos.append('CD') 
+	#if it starts with an uppercase letter and is not found at the beginning of the sentence AND end with an S return NNPS 
+	if word[0].isupper() and index > 0 and word[-1] == 's':
+		if 'NNPS' not in OOV_pos: 
+			OOV_pos.append("NNPS") 
+
+	#if it starts with an uppercase letter and is not found at the beginning of the sentence
+	#return NNP
+	if word[0].isupper() and index > 0:
+		if 'JJ' not in OOV_pos: 
+			OOV_pos.append("NNP") 
+
+	#if it ends with an s then return NNS 
+	if word[-1] == 's':
+		if 'NNS' not in OOV_pos: 
+			OOV_pos.append("NNS")  
+
+	#if it ends with ing, return VBG
+	if word[-3:] == 'ing':
+		if 'VBG' not in OOV_pos: 
+			OOV_pos.append("VBG") 
+
+	#if it ends with ed, return VBD 
+	if word[-2:] == 'ed':
+		if 'VBD' not in OOV_pos: 
+			OOV_pos.append('VBD') 
+	
+	#if it ends with ly return RB 
+	if word[-2:] == 'ly':
+		if 'RB' not in OOV_pos: 
+			OOV_pos.append('RB')
+	#if it ends with er return JJR
+	if word[-2:] == 'er':
+		if 'JJR' not in OOV_pos: 
+			OOV_pos.append('JJR')  
+	#if it ends with est return JJS 
+	if word[-3:] == 'est':
+		if 'JJS' not in OOV_pos: 
+			OOV_pos.append('JJS')  
+	if len(OOV_pos) == 0: 
+		if 'N' not in OOV_pos: 
+			OOV_pos.append('NN')
+	return OOV_pos 
+
+#finds parts of speeches for all words in sentence using corpus and OOV_tag function 
+def sentence_tag(sentence,pos_keys, word_keys, likelihood_table):  
+	#first find the parts of speeches 
+	dic = {} 
+	i = 0 
+	print(sentence)
+	for word in sentence:
+	 
+		#find row index in likelihood table
+		pos_list =[] 
+		try:
+			word_index = word_keys.index(word.lower()) 
+		except ValueError:
+			word_index = -1
+
+		if word_index > -1: 
+			for j in range(len(likelihood_table[word_index])):
+				if likelihood_table[word_index][j] > 0:
+					pos_list.append(pos_keys[j]) 
+		else:
+			pos_list = OOV_tag(word,i,pos_keys) 
+		dic[i] = pos_list 
+
+		i+=1 
+
+	return dic
+
+#gets all the unique part of speech tags from the sentece x part of speech dictionary 
+
+def sentence_pos(dic):
+	pos_list = [] 
+	for key in dic: 
+		for val in dic[key]:
+			if val not in pos_list:
+				pos_list.append(val)
+	return pos_list
+#def sentence_tag_transition(sentence,pos_keys,pp_table)
+
+
+def transition_probabilities(dic,pos_list,transition_table,pos_keys):
+	rows = ['S'] + pos_list 
+	columns = pos_list 
+	t_rows = ['S'] + pos_keys
+	t_columns = pos_keys 
+	#numpy initialize matrix to 0  
+
+	table = numpy.zeros(shape = (len(rows),len(columns)))
+	for i in range(len(rows)):
+			row_index = t_rows.index(rows[i]) 
+			for j in range(len(columns)):
+				column_index = t_columns.index(columns[j]) 
+				table[i,j] = transition_table[row_index,column_index] 
+	
+	
+	print_transition('test_trans.csv',table,columns,rows)
+	return table
+
+
