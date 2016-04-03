@@ -9,7 +9,7 @@ corpus_list = viterbi.corpus_list(training)
 #print("THE NUMBER OF SENTENCES",len(corpus_list)) 
 corpus_dictionary = viterbi.corpus_dictionary(training) 
 
-keys = viterbi.key_list(corpus_dictionary) 
+keys = viterbi.key_list(corpus_dictionary) #pos_keys 
 print(keys) 
 
 prior_probabilities_table = viterbi.transition_table(corpus_dictionary,corpus_list) 
@@ -18,7 +18,8 @@ prior_probabilities_table = viterbi.transition_table(corpus_dictionary,corpus_li
 #likelihood table 
 #print(keys)
 word_dic = viterbi.word_dic(corpus_list,keys) 
-words = viterbi.key_list(word_dic) 
+words = viterbi.key_list(word_dic) #word keys 
+
 #print(words)
 likelihood_table  = viterbi.word_freq(corpus_dictionary,word_dic) 
 #print(prior_probabilities_table)
@@ -27,10 +28,10 @@ likelihood_table  = viterbi.word_freq(corpus_dictionary,word_dic)
 
 test_file = "WSJ_POS_CORPUS_FOR_STUDENTS/WSJ_24.words"
 sentences = viterbi.corpus_list_2(test_file) 
-print(sentences) 
+#print(sentences) 
 
 
-#print(sentences[0])
+print(sentences[0])
 s1_trans = viterbi.sentence_tag(sentences[0],keys,words,likelihood_table)  
 print(s1_trans)
 s1_pos = viterbi.sentence_pos(s1_trans) 
@@ -44,5 +45,6 @@ transition_probabilities = viterbi.transition_probabilities(s1_trans,s1_pos,prio
 #print(transition_probabilities) 
 
 
-
+#Observed Likelihoods table 
+observed_like = viterbi.observed_likelihoods(sentences[0],s1_pos,s1_trans,likelihood_table,words,keys)
 
