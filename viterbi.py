@@ -370,3 +370,60 @@ def transition_probabilities(dic,pos_list,transition_table,pos_keys):
 	return table
 
 
+
+
+#
+#@param sentence 		the sentence list 
+#@param pos_list		list of parts of speeches for this particular sentence	
+#					obtained from sentence_pos 
+#@param	sentence_dic		list of parts of speeches for each word in sentence
+#@param	likelihood		likelihood table from training corpus
+#@param l_rows		likelihood table rows
+#@param	l_columns	likelihood table columns 
+def observed_likelihoods(sentence,pos_list,sentence_dic,likelihood_table,l_rows,l_columns ):
+	#Rows = POS_list
+	#Columns = Words 
+	rows = pos_list 
+	columns = sentence
+	table = numpy.zeros(shape = (len(rows),len(columns))) 
+	for i in range(len(sentence)): 
+		#find part of speech for word 
+		word = sentence[i] 
+		#columns.append(word) #add word to columns list
+		#find part of speech for word - list 
+		word_pos = sentence_dic[i] 
+		print(word_pos) 
+
+		try:
+			l_row_i = l_rows.index(word) #find likelihood table row 
+		except ValueError: 
+			l_row_i = -1 #when OOV 
+		print("print likelihood row position\t\t", l_row_i) 
+		for pos in word_pos: 
+			
+
+			#find column position 
+			l_column_i = l_columns.index(pos) 
+
+			#find likelihoods from likelihood table 
+			if l_row_i != -1:		
+				#find likelihood 
+				likelihood = likelihood_table[l_row_i][l_column_i] 
+			#NOTE
+			#100K is used for temporary testing
+			#Will Evaluate this to be different for all parts of speech 
+			else:
+				likelihood = 1/100000 
+
+			#attach to observed likelihoods table
+
+			row = pos_list.index(pos) 
+			column = i
+
+			table[row][column] = likelihood
+
+
+	print_transition('observed_likelihoods.csv',table,columns,rows)
+
+
+	return table
