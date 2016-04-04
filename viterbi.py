@@ -388,14 +388,14 @@ def observed_likelihoods(sentence,pos_list,sentence_dic,likelihood_table,l_rows,
 	table = numpy.zeros(shape = (len(rows),len(columns))) 
 	for i in range(len(sentence)): 
 		#find part of speech for word 
-		word = sentence[i] 
+		word = sentence[i]
 		#columns.append(word) #add word to columns list
 		#find part of speech for word - list 
 		word_pos = sentence_dic[i] 
 		print(word_pos) 
 
 		try:
-			l_row_i = l_rows.index(word) #find likelihood table row 
+			l_row_i = l_rows.index(word.lower()) #find likelihood table row 
 		except ValueError: 
 			l_row_i = -1 #when OOV 
 		print("print likelihood row position\t\t", l_row_i) 
