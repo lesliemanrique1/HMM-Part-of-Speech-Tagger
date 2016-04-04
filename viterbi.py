@@ -392,13 +392,13 @@ def observed_likelihoods(sentence,pos_list,sentence_dic,likelihood_table,l_rows,
 		#columns.append(word) #add word to columns list
 		#find part of speech for word - list 
 		word_pos = sentence_dic[i] 
-		print(word_pos) 
+		#print(word_pos) 
 
 		try:
 			l_row_i = l_rows.index(word.lower()) #find likelihood table row 
 		except ValueError: 
 			l_row_i = -1 #when OOV 
-		print("print likelihood row position\t\t", l_row_i) 
+		#print("print likelihood row position\t\t", l_row_i) 
 		for pos in word_pos: 
 			
 
@@ -424,6 +424,84 @@ def observed_likelihoods(sentence,pos_list,sentence_dic,likelihood_table,l_rows,
 
 
 	print_transition('observed_likelihoods.csv',table,columns,rows)
-
-
 	return table
+
+
+#def viterbi_helper(prior_row, prior_column,observed,sentence,pos_list,likelihood_table,l_rows,l_columns,transitions):
+	#like = observed[
+"""
+def viterbi_helper(prev_r,prev_col):
+	for j in range(prev_col,len(columns)):
+		for i in range(prev_r,len(rows)): 
+			likelihood = observed[i-1][j-1] 
+			transition = transistions[][j-1] 
+			viterbi[i][j] = max(viterbi[i][j],viterbi[prev_r,prev_col] * likelihood * trans)
+			path[i][j] = """
+
+def viterbi(observed,sentence,pos_list,sentence_dic,likelihood_table,l_rows,l_columns,transitions ):
+	rows = ['S'] + pos_list
+	columns  = ['S'] + sentence
+	viterbi = numpy.zeros(shape = (len(rows),len(columns))) #lookup 
+	path = numpy.zeros(shape = (len(rows),len(columns))) #path 
+	#initialize viterbi and path matrix 
+	#viterbi will include calculations
+	#path will include tuples 
+	for i in range(len(rows)):
+		array = []
+		for j in range(len(columns)):
+			if i == 0 and j== 0:
+				viterbi[i][j] = 1 
+			#if i>0 and j>0: 
+				
+				#viterbi[i][j] = observed[i-1][j-1] 
+			
+			#to_this = (0,0) 
+			#array.append(to_this)
+		#path.append(array)
+
+	#fill in with correct values 
+	#go through array column by column
+	prev_r = 0 
+	prev_c = 0 
+	
+	prev_rows = []
+	prev_rows.append(int(0)) 
+
+
+	print("\n\n prev rows \n\n",prev_rows)
+	for j in range(1,len(columns)):
+		prev_list = [] 
+		print("NGKFBGKFDBGKFDJG \t\t ", j)
+		for i in range(1,len(rows)): 
+			if j != 0: 
+				like = observed[i-1][j-1]  
+				print("like: \t\t", like) 
+				if like > 0: 
+					prev_list.append(i) 
+			
+
+					print("PREVIOUS ROWS ", prev_rows) 
+					for k in prev_rows:
+						print(k) 
+						previous_vit = viterbi[k][j-1] 
+						print("k : ", k, "j-1",j-1)
+						print("previous vit" ,previous_vit)
+						#transition = transitions[k-1][j-1] 
+						#how do i find the transition? 
+						print("HELLO")
+						transition = transitions[k][i-1]
+						print("transition \t\t", transition) 
+						calc = previous_vit * like * transition 
+						print("\n\n CALC \n\n" , calc) 
+						number = viterbi[i][j] 
+						print("NUMBER",number)
+						if calc > number:
+							print("\t\t\t should change value \n") 
+							viterbi[i][j] = calc 
+							path[i][j] = k 
+		
+		prev_rows = prev_list 
+	print_transition('viterbi.csv',viterbi,columns,rows)
+	print_transition('viterbi_path.csv',path,columns,rows)
+	return viterbi
+

@@ -48,3 +48,8 @@ transition_probabilities = viterbi.transition_probabilities(s1_trans,s1_pos,prio
 #Observed Likelihoods table 
 observed_like = viterbi.observed_likelihoods(sentences[0],s1_pos,s1_trans,likelihood_table,words,keys)
 
+#THE LAST PART IS TO IMPLEMENT VITERBI ALGORITHMS
+
+#def vit(observed_likelihoods, l_rows,l_columns,transitions,t_rows,t_columns,lookup,decisions): 
+
+table = viterbi.viterbi(observed_like,sentences[0],s1_pos,s1_trans,likelihood_table,words,keys,transition_probabilities)
