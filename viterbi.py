@@ -28,7 +28,6 @@ def corpus_list(filename):
     tf.close()
     return array 
 
-
 """
 def corpus_dictionary(filename):
     training = filename
@@ -91,7 +90,7 @@ def key_list(dic):
 #                       transition occurs in corpus
 #@param list_1		column headers
 #@param list_2		row headers
-def print_transition(filename,matrix,list_1,list_2):
+def print_csv(filename,matrix,list_1,list_2):
 	f = open(filename,'wb')
 	with f as out:
 		writer = csv.writer(out) 
@@ -162,7 +161,7 @@ def transition_table(dic,corpus_list):
 	#calculate prior probabilities 
 	calculate_prior_probabilities(corpus_list,table,dic,list_2) 
 	#prints prior probabilities table to csv file 
-	print_transition('prior_probabilities.csv',table,list_1,list_2)  
+	print_csv('prior_probabilities.csv',table,list_1,list_2)  
 	return table
 
 
@@ -216,14 +215,8 @@ def word_freq(pos_dic,word_dic):
 			#print(word_dic[key][i]) 
 			table[count,i] = float(word_dic[key][i])/float(pos_occurences) 
 			
-			"""if key == 'misanthrope':
-				print("key",key) 
-				print("original",float(word_dic[key][i])) 
-				print("pos_occurences",float(pos_occurences)) 
-				print("division",float(table[count,i])) 
-			"""
 		count+=1 
-	print_transition('likelihood.csv',table,pos_keys,word_keys)
+	print_csv('likelihood.csv',table,pos_keys,word_keys)
 
 	return table
 
@@ -366,7 +359,7 @@ def transition_probabilities(dic,pos_list,transition_table,pos_keys):
 				table[i,j] = transition_table[row_index,column_index] 
 	
 	
-	print_transition('test_trans.csv',table,columns,rows)
+	print_csv('test_trans.csv',table,columns,rows)
 	return table
 
 
@@ -423,20 +416,9 @@ def observed_likelihoods(sentence,pos_list,sentence_dic,likelihood_table,l_rows,
 			table[row][column] = likelihood
 
 
-	print_transition('observed_likelihoods.csv',table,columns,rows)
+	print_csv('observed_likelihoods.csv',table,columns,rows)
 	return table
 
-
-#def viterbi_helper(prior_row, prior_column,observed,sentence,pos_list,likelihood_table,l_rows,l_columns,transitions):
-	#like = observed[
-"""
-def viterbi_helper(prev_r,prev_col):
-	for j in range(prev_col,len(columns)):
-		for i in range(prev_r,len(rows)): 
-			likelihood = observed[i-1][j-1] 
-			transition = transistions[][j-1] 
-			viterbi[i][j] = max(viterbi[i][j],viterbi[prev_r,prev_col] * likelihood * trans)
-			path[i][j] = """
 
 def viterbi(observed,sentence,pos_list,sentence_dic,likelihood_table,l_rows,l_columns,transitions ):
 	rows = ['S'] + pos_list
@@ -447,61 +429,48 @@ def viterbi(observed,sentence,pos_list,sentence_dic,likelihood_table,l_rows,l_co
 	#viterbi will include calculations
 	#path will include tuples 
 	for i in range(len(rows)):
-		array = []
 		for j in range(len(columns)):
 			if i == 0 and j== 0:
 				viterbi[i][j] = 1 
-			#if i>0 and j>0: 
-				
-				#viterbi[i][j] = observed[i-1][j-1] 
-			
-			#to_this = (0,0) 
-			#array.append(to_this)
-		#path.append(array)
-
-	#fill in with correct values 
-	#go through array column by column
-	prev_r = 0 
-	prev_c = 0 
-	
 	prev_rows = []
 	prev_rows.append(int(0)) 
 
-
-	print("\n\n prev rows \n\n",prev_rows)
 	for j in range(1,len(columns)):
 		prev_list = [] 
-		print("NGKFBGKFDBGKFDJG \t\t ", j)
 		for i in range(1,len(rows)): 
 			if j != 0: 
-				like = observed[i-1][j-1]  
-				print("like: \t\t", like) 
+				like = observed[i-1][j-1]   
 				if like > 0: 
 					prev_list.append(i) 
-			
-
-					print("PREVIOUS ROWS ", prev_rows) 
 					for k in prev_rows:
-						print(k) 
 						previous_vit = viterbi[k][j-1] 
-						print("k : ", k, "j-1",j-1)
-						print("previous vit" ,previous_vit)
-						#transition = transitions[k-1][j-1] 
-						#how do i find the transition? 
-						print("HELLO")
-						transition = transitions[k][i-1]
-						print("transition \t\t", transition) 
+						transition = transitions[k][i-1] 
 						calc = previous_vit * like * transition 
-						print("\n\n CALC \n\n" , calc) 
 						number = viterbi[i][j] 
-						print("NUMBER",number)
 						if calc > number:
-							print("\t\t\t should change value \n") 
 							viterbi[i][j] = calc 
 							path[i][j] = k 
 		
 		prev_rows = prev_list 
-	print_transition('viterbi.csv',viterbi,columns,rows)
-	print_transition('viterbi_path.csv',path,columns,rows)
-	return viterbi
+	#print_transition('viterbi.csv',viterbi,columns,rows)
+	#print_transition('viterbi_path.csv',path,columns,rows)
 
+	
+	#Next Step: 
+	#Go Through table and find parts of speeches 
+	#Output list of tuples (word,pos) 
+	
+
+	sentence_tag = [] 
+	_row = len(rows)-1 
+	for j in range(len(columns)-1,0,-1): 
+		value = path[_row][j] 
+		value = int(value) 
+		tag = (columns[j],rows[_row]) 
+		sentence_tag.append(tag) 
+		_row = value
+
+	sentence_tag.reverse() 
+	print(sentence_tag) 
+
+	return sentence_tag 
