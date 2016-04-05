@@ -1,6 +1,6 @@
 import numpy 
 import csv
-
+import re 
 #NOTE:
 #
 #		Find a new way to form corpus list 
@@ -107,15 +107,7 @@ def print_csv(filename,matrix,list_1,list_2):
 #@param list_1		column header 
 #@param list_2		row header 
 def helper_transition(sentence,matrix,list_1,list_2):
-	#list_1 is columns
-	#list_2 is rows
-	period_r = list_2.index('.')
-	period_c = list_1.index('.')
-	#row = 0 
-	#print sentence
-	#print(sentence) 
-	#print("SENTENCE IS ABOVEEEEE!!!")
-	this_sentence = [('','S')] + sentence 
+	this_sentence = [('','S')] + sentence + [('','E')]
 	#print this_sentence
 	#for i in sentence:
 	for i in range(len(this_sentence)-1):
@@ -149,7 +141,7 @@ def calculate_prior_probabilities(corpus_list,matrix,dic,list_2):
 def transition_table(dic,corpus_list):
 	ls = key_list(dic) 
 
-	list_1 =  ls #columns 
+	list_1 =  ls + ['E'] #columns 
 	list_2 = ['S'] + ls #rows
 	#creates a matrix with indexes initialized to 0 using numpy 
 	table = numpy.zeros(shape = (len(list_2),len(list_1)))
@@ -244,6 +236,24 @@ def corpus_list_2(filename):
 	return array
 
 #return OOV list of possabilities 
+
+def isfloat(string):
+	condition = False 
+	try:
+		float(string)
+		condition = True   
+	except ValueError:
+		condition = False
+	
+	if condition == False: 
+		try:
+			float(string.replace(',','')) 
+			condition = True 
+		except ValueError:
+			condition = False 
+	return condition 
+
+
 def OOV_tag(word,index,pos_keys):
 	OOV_pos = [] 
 
@@ -260,8 +270,15 @@ def OOV_tag(word,index,pos_keys):
 
 	#if word is numnerical, return CD 
 	if unicode(word).isnumeric():
+		#print(word)
 		if 'CD' not in OOV_pos: 
 			OOV_pos.append('CD') 
+	if float(isfloat(word)):
+		#print(word)
+		#print(float(word)) 
+		if 'CD' not in OOV_pos:
+			OOV_pos.append('CD') 
+
 	#if it starts with an uppercase letter and is not found at the beginning of the sentence AND end with an S return NNPS 
 	if word[0].isupper() and index > 0 and word[-1] == 's':
 		if 'NNPS' not in OOV_pos: 
@@ -282,7 +299,8 @@ def OOV_tag(word,index,pos_keys):
 	if word[-3:] == 'ing':
 		if 'VBG' not in OOV_pos: 
 			OOV_pos.append("VBG") 
-
+		if 'VB' not in OOV_pos:
+			OOV_pos.append("VB") 
 	#if it ends with ed, return VBD 
 	if word[-2:] == 'ed':
 		if 'VBD' not in OOV_pos: 
@@ -303,6 +321,8 @@ def OOV_tag(word,index,pos_keys):
 	if len(OOV_pos) == 0: 
 		if 'N' not in OOV_pos: 
 			OOV_pos.append('NN')
+	
+	print("word: ",word," list: ", OOV_pos) 
 	return OOV_pos 
 
 #finds parts of speeches for all words in sentence using corpus and OOV_tag function 
@@ -310,7 +330,7 @@ def sentence_tag(sentence,pos_keys, word_keys, likelihood_table):
 	#first find the parts of speeches 
 	dic = {} 
 	i = 0 
-	print(sentence)
+	#print(sentence)
 	for word in sentence:
 	 
 		#find row index in likelihood table
@@ -346,9 +366,9 @@ def sentence_pos(dic):
 
 def transition_probabilities(dic,pos_list,transition_table,pos_keys):
 	rows = ['S'] + pos_list 
-	columns = pos_list 
-	t_rows = ['S'] + pos_keys
-	t_columns = pos_keys 
+	columns = pos_list + ['E']
+	t_rows = ['S'] + pos_keys  
+	t_columns = pos_keys + ['E'] 
 	#numpy initialize matrix to 0  
 
 	table = numpy.zeros(shape = (len(rows),len(columns)))
@@ -376,9 +396,10 @@ def transition_probabilities(dic,pos_list,transition_table,pos_keys):
 def observed_likelihoods(sentence,pos_list,sentence_dic,likelihood_table,l_rows,l_columns ):
 	#Rows = POS_list
 	#Columns = Words 
-	rows = pos_list 
-	columns = sentence
+	rows = pos_list + ['E']
+	columns = sentence + ['E']
 	table = numpy.zeros(shape = (len(rows),len(columns))) 
+	table[len(rows)-1][len(columns)-1] = 1.0 
 	for i in range(len(sentence)): 
 		#find part of speech for word 
 		word = sentence[i]
@@ -392,21 +413,34 @@ def observed_likelihoods(sentence,pos_list,sentence_dic,likelihood_table,l_rows,
 		except ValueError: 
 			l_row_i = -1 #when OOV 
 		#print("print likelihood row position\t\t", l_row_i) 
+		
+		
+		#print(sentence[i], word_pos) 
+	
 		for pos in word_pos: 
 			
+		#	print(pos) 
 
 			#find column position 
 			l_column_i = l_columns.index(pos) 
 
+			#print("l_columns[l_column_i]",l_columns[l_column_i]) 
+			#print("l_coumn_i",l_column_i) 
 			#find likelihoods from likelihood table 
 			if l_row_i != -1:		
 				#find likelihood 
 				likelihood = likelihood_table[l_row_i][l_column_i] 
+			
+			else:
+				likelihood = 0.00001
+			
+			
+			#print("likelihood",likelihood) 
 			#NOTE
 			#100K is used for temporary testing
 			#Will Evaluate this to be different for all parts of speech 
-			else:
-				likelihood = 1/100000 
+
+			#print(columns[i])
 
 			#attach to observed likelihoods table
 
@@ -414,15 +448,15 @@ def observed_likelihoods(sentence,pos_list,sentence_dic,likelihood_table,l_rows,
 			column = i
 
 			table[row][column] = likelihood
-
+			#print("table[row][column]",table[row][column]) 
 
 	print_csv('observed_likelihoods.csv',table,columns,rows)
 	return table
 
 
-def viterbi(observed,sentence,pos_list,sentence_dic,likelihood_table,l_rows,l_columns,transitions ):
-	rows = ['S'] + pos_list
-	columns  = ['S'] + sentence
+def viterbi(observed,sentence,pos_list,transitions ):
+	rows = ['S'] + pos_list + ['E']
+	columns  = ['S'] + sentence + ['E'] 
 	viterbi = numpy.zeros(shape = (len(rows),len(columns))) #lookup 
 	path = numpy.zeros(shape = (len(rows),len(columns))) #path 
 	#initialize viterbi and path matrix 
@@ -432,13 +466,19 @@ def viterbi(observed,sentence,pos_list,sentence_dic,likelihood_table,l_rows,l_co
 		for j in range(len(columns)):
 			if i == 0 and j== 0:
 				viterbi[i][j] = 1 
+	
+			#if j == len(columns)-1 and i == len(rows)-1:
+				#viterbi[i][j] = 1
+	
 	prev_rows = []
 	prev_rows.append(int(0)) 
 
 	for j in range(1,len(columns)):
 		prev_list = [] 
 		for i in range(1,len(rows)): 
-			if j != 0: 
+			#print(i,j,"row","column") 
+			#print(columns[j]) 
+			if j != 0 : 
 				like = observed[i-1][j-1]   
 				if like > 0: 
 					prev_list.append(i) 
@@ -450,10 +490,22 @@ def viterbi(observed,sentence,pos_list,sentence_dic,likelihood_table,l_rows,l_co
 						if calc > number:
 							viterbi[i][j] = calc 
 							path[i][j] = k 
+			"""if j == len(columns)-1 :
+				print(prev_list)
+				like = 1 
+				for k in prev_rows:
+					previous_vit = viterbi[k][j-1]
+					transition = transitions[k][i-1] 
+					calc = previous_vit * like * transition 
+					number = viterbi[i][j] 
+					if calc > number:
+						viterbi[i][j] = calc 
+						path[i][j] = k
 		
+			"""
 		prev_rows = prev_list 
-	#print_transition('viterbi.csv',viterbi,columns,rows)
-	#print_transition('viterbi_path.csv',path,columns,rows)
+	print_csv('viterbi.csv',viterbi,columns,rows)
+	print_csv('viterbi_path.csv',path,columns,rows)
 
 	
 	#Next Step: 
@@ -473,4 +525,5 @@ def viterbi(observed,sentence,pos_list,sentence_dic,likelihood_table,l_rows,l_co
 	sentence_tag.reverse() 
 	print(sentence_tag) 
 
-	return sentence_tag 
+	return sentence_tag
+

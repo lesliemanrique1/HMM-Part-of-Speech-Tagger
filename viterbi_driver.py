@@ -18,6 +18,7 @@ prior_probabilities_table = viterbi.transition_table(corpus_dictionary,corpus_li
 #likelihood table 
 #print(keys)
 word_dic = viterbi.word_dic(corpus_list,keys) 
+#print(word_dic)
 words = viterbi.key_list(word_dic) #word keys 
 
 #print(words)
@@ -30,26 +31,27 @@ test_file = "WSJ_POS_CORPUS_FOR_STUDENTS/WSJ_24.words"
 sentences = viterbi.corpus_list_2(test_file) 
 #print(sentences) 
 
-
-print(sentences[0])
-s1_trans = viterbi.sentence_tag(sentences[0],keys,words,likelihood_table)  
-print(s1_trans)
+#index = 1344
+index = 213 
+print(sentences[index])
+s1_trans = viterbi.sentence_tag(sentences[index],keys,words,likelihood_table)  
+#print(s1_trans)
 s1_pos = viterbi.sentence_pos(s1_trans) 
-print("\n\n") 
-print("sentence pos : ", s1_pos)
+#print("\n\n") 
+
+#print("sentence pos : ", s1_pos)
 
 #Transition Probabilities of Sentence 
 
 transition_probabilities = viterbi.transition_probabilities(s1_trans,s1_pos,prior_probabilities_table,keys) 
 
-#print(transition_probabilities) 
 
 
 #Observed Likelihoods table 
-observed_like = viterbi.observed_likelihoods(sentences[0],s1_pos,s1_trans,likelihood_table,words,keys)
+observed_like = viterbi.observed_likelihoods(sentences[index],s1_pos,s1_trans,likelihood_table,words,keys)
 
 #THE LAST PART IS TO IMPLEMENT VITERBI ALGORITHMS
 
 #def vit(observed_likelihoods, l_rows,l_columns,transitions,t_rows,t_columns,lookup,decisions): 
 
-table = viterbi.viterbi(observed_like,sentences[0],s1_pos,s1_trans,likelihood_table,words,keys,transition_probabilities)
+table = viterbi.viterbi(observed_like,sentences[index],s1_pos,transition_probabilities)
