@@ -28,35 +28,6 @@ def corpus_list(filename):
     tf.close()
     return array 
 
-"""
-def corpus_dictionary(filename):
-    training = filename
-    tf = open(training, 'r')
-    dic = {}
-    for line in tf:
-        l = line.split()
-        #print(line) 
-        #POS is made up of letters; check to see if it's a letter
-        if(len(l) == 2):
-           
-                #add line to list
-                #POS.append(l[1])
-                #Tokens.append(l[0])
-                #check if key is exiting 
-               if l[1] in dic:
-                   #append the new tag to existing array if it's not already in the array 
-                   #dic[l[1]].append(l[0])
-                   word = l[0].lower() 
-                   if not word in dic[l[1]]:
-                       dic[l[1]].append(word) 
-               else:
-                   #create a new key and array
-                   dic[l[1]] = [l[0].lower()]
-    tf.close()
-    
-    return dic  
-"""
-
 #returns a dictionary of the part of speech tag with number of occurences
 #@param filename	file to read from 
 #@return dic		dictionary 
@@ -322,7 +293,7 @@ def OOV_tag(word,index,pos_keys):
 		if 'N' not in OOV_pos: 
 			OOV_pos.append('NN')
 	
-	print("word: ",word," list: ", OOV_pos) 
+#	print("word: ",word," list: ", OOV_pos) 
 	return OOV_pos 
 
 #finds parts of speeches for all words in sentence using corpus and OOV_tag function 
@@ -379,7 +350,7 @@ def transition_probabilities(dic,pos_list,transition_table,pos_keys):
 				table[i,j] = transition_table[row_index,column_index] 
 	
 	
-	print_csv('test_trans.csv',table,columns,rows)
+	#print_csv('test_trans.csv',table,columns,rows)
 	return table
 
 
@@ -450,7 +421,7 @@ def observed_likelihoods(sentence,pos_list,sentence_dic,likelihood_table,l_rows,
 			table[row][column] = likelihood
 			#print("table[row][column]",table[row][column]) 
 
-	print_csv('observed_likelihoods.csv',table,columns,rows)
+	#print_csv('observed_likelihoods.csv',table,columns,rows)
 	return table
 
 
@@ -490,22 +461,10 @@ def viterbi(observed,sentence,pos_list,transitions ):
 						if calc > number:
 							viterbi[i][j] = calc 
 							path[i][j] = k 
-			"""if j == len(columns)-1 :
-				print(prev_list)
-				like = 1 
-				for k in prev_rows:
-					previous_vit = viterbi[k][j-1]
-					transition = transitions[k][i-1] 
-					calc = previous_vit * like * transition 
-					number = viterbi[i][j] 
-					if calc > number:
-						viterbi[i][j] = calc 
-						path[i][j] = k
 		
-			"""
 		prev_rows = prev_list 
-	print_csv('viterbi.csv',viterbi,columns,rows)
-	print_csv('viterbi_path.csv',path,columns,rows)
+#	print_csv('viterbi.csv',viterbi,columns,rows)
+#	print_csv('viterbi_path.csv',path,columns,rows)
 
 	
 	#Next Step: 
@@ -523,7 +482,7 @@ def viterbi(observed,sentence,pos_list,transitions ):
 		_row = value
 
 	sentence_tag.reverse() 
-	print(sentence_tag) 
+	#print(sentence_tag) 
 
 	return sentence_tag
 
