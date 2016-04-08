@@ -99,7 +99,7 @@ The likelihood for out of vocabulary words were automatically set to ***1/100K**
 
 ###Problems
 
-I ran into problems when into some trouble with this project. After finishing up my code, there were some transitions that
+I ran into problems with this project. After finishing up my code, there were some transitions that
 were not found in my transition table. Therefore when the part of speech is selected, there was a gap in my Viterbi lookup
 table. So, when finding the path, the path was set to default 0, which made the words be tagged to 'S' which i used to signify
 the start of a sentence. 
