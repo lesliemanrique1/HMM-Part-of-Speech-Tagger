@@ -5,9 +5,9 @@ viterbi_run.py                Runs the viterbi algorithm
 viterbi.py                    Library of functions
 
 ###To run this file: 
-'''
-python viterbi_run.py trainingfile  developmentfile runfile 
-'''
+
+	python viterbi_run.py trainingfile  developmentfile runfile 
+
 trainingfile - file used as training corpus WSJ_02-21.pos 
 developmentfile - file used as development set WSJ_24.pos 
 runfile - file to run system on 
@@ -23,76 +23,75 @@ The training file and development file are merged to create a larger file that w
 
 The hardest part was handing OOV words. I accomplished this via the following code: 
 
-'''python
-  def OOV_tag(word,index,pos_keys):
-	OOV_pos = [] 
 
-	#if there's a hyphen , return JJ
-	if '-' in word:
-		if 'JJ' not in OOV_pos: 
-			OOV_pos.append('JJ')
-
-	#if word ends with able, return JJ 
-	if 'able' in word:
-		if 'JJ' not in OOV_pos: 
-			OOV_pos.append('JJ') 
-		
-
-	#if word is numnerical, return CD 
-	if unicode(word).isnumeric():
-		#print(word)
-		if 'CD' not in OOV_pos: 
-			OOV_pos.append('CD') 
-	if float(isfloat(word)):
-		#print(word)
-		#print(float(word)) 
-		if 'CD' not in OOV_pos:
-			OOV_pos.append('CD') 
-
-	#if it starts with an uppercase letter and is not found at the beginning of the sentence AND end with an S return NNPS 
-	if word[0].isupper() and index > 0 and word[-1] == 's':
-		if 'NNPS' not in OOV_pos: 
-			OOV_pos.append("NNPS") 
-
-	#if it starts with an uppercase letter and is not found at the beginning of the sentence
-	#return NNP
-	if word[0].isupper() and index > 0:
-		if 'JJ' not in OOV_pos: 
-			OOV_pos.append("NNP") 
-
-	#if it ends with an s then return NNS 
-	if word[-1] == 's':
-		if 'NNS' not in OOV_pos: 
-			OOV_pos.append("NNS")  
-
-	#if it ends with ing, return VBG
-	if word[-3:] == 'ing':
-		if 'VBG' not in OOV_pos: 
-			OOV_pos.append("VBG") 
-		if 'VB' not in OOV_pos:
-			OOV_pos.append("VB") 
-	#if it ends with ed, return VBD 
-	if word[-2:] == 'ed':
-		if 'VBD' not in OOV_pos: 
-			OOV_pos.append('VBD') 
+  	def OOV_tag(word,index,pos_keys):
+		OOV_pos = [] 
 	
-	#if it ends with ly return RB 
-	if word[-2:] == 'ly':
-		if 'RB' not in OOV_pos: 
-			OOV_pos.append('RB')
-	#if it ends with er return JJR
-	if word[-2:] == 'er':
-		if 'JJR' not in OOV_pos: 
-			OOV_pos.append('JJR')  
-	#if it ends with est return JJS 
-	if word[-3:] == 'est':
-		if 'JJS' not in OOV_pos: 
-			OOV_pos.append('JJS')  
-	if len(OOV_pos) == 0: 
-		if 'N' not in OOV_pos: 
-			OOV_pos.append('NN')
-	return OOV_pos 
-''' 
+		#if there's a hyphen , return JJ
+		if '-' in word:
+			if 'JJ' not in OOV_pos: 
+				OOV_pos.append('JJ')
+	
+		#if word ends with able, return JJ 
+		if 'able' in word:
+			if 'JJ' not in OOV_pos: 
+				OOV_pos.append('JJ') 
+			
+	
+		#if word is numnerical, return CD 
+		if unicode(word).isnumeric():
+			#print(word)
+			if 'CD' not in OOV_pos: 
+				OOV_pos.append('CD') 
+		if float(isfloat(word)):
+			#print(word)
+			#print(float(word)) 
+			if 'CD' not in OOV_pos:
+				OOV_pos.append('CD') 
+		#if it starts with an uppercase letter and is not found at the beginning of the sentence AND end with an S return NNPS 
+		if word[0].isupper() and index > 0 and word[-1] == 's':
+			if 'NNPS' not in OOV_pos: 
+				OOV_pos.append("NNPS") 
+	
+		#if it starts with an uppercase letter and is not found at the beginning of the sentence
+		#return NNP
+		if word[0].isupper() and index > 0:
+			if 'JJ' not in OOV_pos: 
+				OOV_pos.append("NNP") 
+	
+		#if it ends with an s then return NNS 
+		if word[-1] == 's':
+			if 'NNS' not in OOV_pos: 
+				OOV_pos.append("NNS")  
+	
+		#if it ends with ing, return VBG
+		if word[-3:] == 'ing':
+			if 'VBG' not in OOV_pos: 
+				OOV_pos.append("VBG") 
+			if 'VB' not in OOV_pos:
+				OOV_pos.append("VB") 
+		#if it ends with ed, return VBD 
+		if word[-2:] == 'ed':
+			if 'VBD' not in OOV_pos: 
+				OOV_pos.append('VBD') 
+		
+		#if it ends with ly return RB 
+		if word[-2:] == 'ly':
+			if 'RB' not in OOV_pos: 
+				OOV_pos.append('RB')
+		#if it ends with er return JJR
+		if word[-2:] == 'er':
+			if 'JJR' not in OOV_pos: 
+				OOV_pos.append('JJR')  
+		#if it ends with est return JJS 
+		if word[-3:] == 'est':
+			if 'JJS' not in OOV_pos: 
+				OOV_pos.append('JJS')  
+		if len(OOV_pos) == 0: 
+			if 'N' not in OOV_pos: 
+				OOV_pos.append('NN')
+		return OOV_pos 
+
 Default an OOV word is likely to be a nount. As each if statement is checked, when true is returned, it will add
 the part of speech to a list of parts of speeches. 
 
