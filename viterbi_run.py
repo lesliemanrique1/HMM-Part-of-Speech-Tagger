@@ -48,7 +48,10 @@ def viterbi_run(training, test_file):
 
 		observed_like = viterbi.observed_likelihoods(sentence,s_pos,trans,likelihood_table,words,keys)
 		vit_sent = viterbi.viterbi(observed_like,sentence,s_pos,transition_table) 
+<<<<<<< HEAD
 		new_sentences.append(vit_sent) 
+=======
+>>>>>>> 64c28348f9bebad1b1737107c5bbb54b4b027e1d
 	"""
 		errors = 0 
 		for p in vit_sent:
