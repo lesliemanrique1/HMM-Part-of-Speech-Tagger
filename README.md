@@ -8,8 +8,10 @@ viterbi.py                    Library of functions
 
 	python viterbi_run.py trainingfile  developmentfile runfile 
 
-trainingfile - file used as training corpus WSJ_02-21.pos 
-developmentfile - file used as development set WSJ_24.pos 
+trainingfile - file used as training corpus WSJ_02-21.pos
+
+developmentfile - file used as development set WSJ_24.pos
+
 runfile - file to run system on 
 
 
@@ -95,7 +97,7 @@ The hardest part was handing OOV words. I accomplished this via the following co
 Default an OOV word is likely to be a nount. As each if statement is checked, when true is returned, it will add
 the part of speech to a list of parts of speeches. 
 
-The likelihood for out of vocabulary words were automatically set to ***1/100K** 
+The likelihood for out of vocabulary words were automatically set to ***1/100K***
 
 ###Problems
 
